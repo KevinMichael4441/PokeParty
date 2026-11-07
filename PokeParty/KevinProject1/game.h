@@ -2,11 +2,10 @@
 #define GAME_H
 
 #include "raylib.h"
-#include "constants.h"
 
 typedef struct Game {
-    Vector2 position;   // ball center
-    Vector2 velocity;   // pixels per second
+    Vector2 position;
+    Vector2 velocity;
 } Game;
 
 void InitGame(Game* game);

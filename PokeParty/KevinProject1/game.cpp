@@ -1,8 +1,12 @@
 #include "game.h"
 
+
+
+#define BALL_RADIUS 25.0f
+
 void InitGame(Game* game) {
-    game->position = (Vector2){ 200.0f, 200.0f };
-    game->velocity = (Vector2){ 260.0f, 190.0f }; 
+    game->position = Vector2{ 200.0f, 200.0f };
+    game->velocity = Vector2{ 260.0f, 190.0f };
 }
 
 void UpdateGame(Game* game, float deltaTime) {
@@ -32,10 +36,7 @@ void UpdateGame(Game* game, float deltaTime) {
 
 void DrawGame(Game* game) {
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), BLACK);
-
     DrawCircleV(game->position, BALL_RADIUS, WHITE);
 }
 
-void CleanupGame(Game* game) {
-    (void)game;
-}
+void CleanupGame(Game* game) { (void)game; }
