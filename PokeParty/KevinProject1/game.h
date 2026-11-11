@@ -1,16 +1,14 @@
-#ifndef GAME_H
-#define GAME_H
+#pragma once
 
-#include "raylib.h"
+#include "ship.h"
 
-typedef struct Game {
-    Vector2 position;
-    Vector2 velocity;
-} Game;
+class Game {
+public:
+    void run();
 
-void InitGame(Game* game);
-void UpdateGame(Game* game, float deltaTime);
-void DrawGame(Game* game);
-void CleanupGame(Game* game);
+private:
+    void update(float t_deltaTime);
+    void draw();
 
-#endif
+    Ship m_ship;
+};
