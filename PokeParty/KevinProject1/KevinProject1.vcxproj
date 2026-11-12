@@ -151,15 +151,21 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bullet.cpp" />
     <ClCompile Include="collider.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="leaderboard.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="player.cpp" />
     <ClCompile Include="ship.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bullet.h" />
     <ClInclude Include="collider.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="leaderboard.h" />
+    <ClInclude Include="player.h" />
     <ClInclude Include="ship.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

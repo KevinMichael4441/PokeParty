@@ -11,6 +11,8 @@ public:
     Vector2 getPosition();
     float getRadius();
 
+    bool overlaps(Collider& t_other);
+
 private:
     Vector2 m_position;
     float m_radius;
