@@ -8,7 +8,9 @@ Player::Player(std::string t_name, Ship t_ship, KeyboardKey t_fireKey)
     m_kills(0),
     m_alive(true),
     m_ship(t_ship),
-    m_fireKey(t_fireKey)
+    m_fireKey(t_fireKey),
+    m_hasMelee(false),
+    m_weapon(WeaponType::NORMAL)
 {
 }
 
@@ -19,18 +21,34 @@ void Player::update(float t_deltaTime)
 
 void Player::draw()
 {
-    if (m_alive) m_ship.draw();
+    if (!m_alive)
+    {
+        return;
+    }
+
+    if (m_hasMelee) 
+    {
+        Vector2 center = getMeleeCenter();
+        DrawCircleV(center, MELEE_RADIUS, Color{ 255, 161, 0, 127 });
+        DrawCircleLinesV(center, MELEE_RADIUS, Color{ 255, 161, 0, 255 });
+    }
+
+    m_ship.draw();
 }
 
 void Player::respawn()
 {
     m_alive = true;
     m_ship.reset();
+    m_hasMelee = false;
+    m_weapon = WeaponType::NORMAL;
 }
 
 void Player::kill()
 {
     m_alive = false;
+    m_hasMelee = false;
+    m_weapon = WeaponType::NORMAL;
 }
 
 Bullet Player::fire(int t_ownerIndex)
@@ -85,4 +103,34 @@ Ship& Player::getShip()
 Collider& Player::getCollider() 
 { 
     return m_ship.getCollider(); 
+}
+
+void Player::giveMelee()
+{
+    m_hasMelee = true;
+}
+
+bool Player::hasMelee() const
+{
+    return m_hasMelee;
+}
+
+Vector2 Player::getMeleeCenter() const
+{
+    Vector2 pos = m_ship.getPosition();
+    float rot = m_ship.getRotation();
+    return {
+        pos.x - cosf(rot * DEG2RAD),
+        pos.y - sinf(rot * DEG2RAD)
+    };
+}
+
+WeaponType Player::getWeapon() const 
+{ 
+    return m_weapon; 
+}
+
+void Player::setWeapon(WeaponType t_weapon) 
+{ 
+    m_weapon = t_weapon; 
 }

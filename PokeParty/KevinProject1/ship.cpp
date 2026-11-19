@@ -8,6 +8,7 @@ Ship::Ship(Vector2 t_startPos, float t_startRot, KeyboardKey t_turnKey, Color t_
     m_startRot(t_startRot),
     m_position(t_startPos),
     m_rotation(t_startRot),
+    m_rotationDirection(1.0f),
     m_speed(SHIP_SPEED),
     m_turnRate(SHIP_TURN_RATE),
     m_turnKey(t_turnKey),
@@ -21,8 +22,9 @@ void Ship::update(float t_deltaTime)
     bool turnRightHeld = IsKeyDown(m_turnKey);
 
     if (turnRightHeld) {
-        m_rotation += m_turnRate * t_deltaTime;
+        m_rotation += m_turnRate * m_rotationDirection * t_deltaTime;
         if (m_rotation >= 360.0f) m_rotation -= 360.0f;
+        if (m_rotation < 0.0f)    m_rotation += 360.0f;
     }
 
     m_position.x += cosf(m_rotation * DEG2RAD) * m_speed * t_deltaTime;
@@ -53,20 +55,14 @@ void Ship::reset()
     m_collider.setPosition(m_position);
 }
 
-Vector2 Ship::getPosition()
+void Ship::reverseRotation()
 {
-    return m_position;
+    m_rotationDirection = -m_rotationDirection;
 }
 
-float Ship::getRotation()
-{
-    return m_rotation;
-}
-
-Color Ship::getColor()
-{
-    return m_color;
-}
+Vector2 Ship::getPosition() const { return m_position; }
+float   Ship::getRotation() const { return m_rotation; }
+Color   Ship::getColor()    const { return m_color; }
 
 Rectangle Ship::getBody()
 {
@@ -78,7 +74,7 @@ Rectangle Ship::getBody()
     };
 }
 
-Collider& Ship::getCollider()
-{
-    return m_collider;
+Collider& Ship::getCollider() 
+{ 
+    return m_collider; 
 }

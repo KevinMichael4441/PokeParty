@@ -10,4 +10,17 @@ constexpr float SHIP_COLLIDER_RADIUS = 12.0f;
 constexpr float BULLET_SPEED = 500.0f;
 constexpr float BULLET_RADIUS = 4.0f;
 
+constexpr float POWERUP_RADIUS = 6.7f;
+constexpr float POWERUP_LIFETIME = 8.0f;
+constexpr float POWERUP_MIN_SPAWN_TIME = 3.0f;
+constexpr float POWERUP_MAX_SPAWN_TIME = 7.0f;
+constexpr int   MAX_POWERUPS = 2;
+
+constexpr float MELEE_RADIUS = 24.0f;
+constexpr float MELEE_OFFSET = 20.0f;
+
+constexpr float LASER_DURATION = 0.3f;
+constexpr float LASER_WIDTH = 3.0f;
+constexpr float LASER_MAX_LENGTH = 2000.0f;
+
 constexpr int KILLS_FOR_RESET = 10;

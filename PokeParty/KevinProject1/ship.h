@@ -14,11 +14,12 @@ public:
     void draw();
     void reset();
 
-    Vector2 getPosition();
-    float getRotation();
-    Color getColor();
+    void reverseRotation();
 
-    // Unrotated, axis-aligned rectangle centered on the ship position.
+    Vector2 getPosition() const;
+    float   getRotation() const;
+    Color   getColor()    const;
+
     Rectangle getBody();
 
     Collider& getCollider();
@@ -27,9 +28,10 @@ private:
     Vector2 m_startPos;
     float m_startRot;
     Vector2 m_position;
-    float m_rotation;         // degrees
+    float m_rotation;
+    float m_rotationDirection = 1.0f;
     float m_speed;
-    float m_turnRate;         // degrees/s
+    float m_turnRate;
     KeyboardKey m_turnKey;
     Color m_color;
 

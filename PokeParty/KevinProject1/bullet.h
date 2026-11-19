@@ -19,7 +19,7 @@ public:
 
 private:
     Vector2 m_position;
-    float m_direction;   // degrees
+    float m_direction;
     float m_speed;
     int m_ownerIndex;
     bool m_destroyed;

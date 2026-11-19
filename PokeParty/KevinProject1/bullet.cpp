@@ -23,6 +23,7 @@ void Bullet::update(float t_deltaTime)
 
 void Bullet::draw()
 {
+    DrawCircleV(m_position, BULLET_RADIUS + 4, GREEN);
     DrawCircleV(m_position, BULLET_RADIUS, m_color);
 }
 
