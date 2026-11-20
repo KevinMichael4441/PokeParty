@@ -54,4 +54,5 @@ Color Powerup::getTypeColor() const
 void Powerup::setPosition(Vector2 t_position)
 {
     m_position = t_position;
+    m_collider.setPosition(t_position);
 }

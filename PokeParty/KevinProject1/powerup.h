@@ -37,7 +37,7 @@ public:
     PowerupNode* m_next;
 };
 
-PowerupNode* createNode(Powerup player)
+static PowerupNode* createNode(Powerup player)
 {
     PowerupNode* newNode = new PowerupNode(player);
     newNode->m_next = nullptr;
