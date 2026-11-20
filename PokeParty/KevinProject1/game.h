@@ -7,6 +7,9 @@
 #include "powerup.h"
 #include "leaderboard.h"
 
+enum class Screen { MENU, GAME, LEVEL_SELECT };
+
+
 class Game {
 public:
     Game();
@@ -15,6 +18,15 @@ public:
 private:
     void update(float t_deltaTime);
     void draw();
+
+    void updateGame(float t_deltaTime);
+    void drawGame();
+
+    void updateMenu(float t_deltaTime);
+    void drawMenu();
+
+    void updateLevelSelect(float t_deltaTime);
+    void drawLevelSelect();
 
     void handleFiring();
     void handleBulletCollisions();
@@ -48,5 +60,7 @@ private:
 
     Leaderboard m_leaderboard;
 
-    
+    int framesCounter = 0;
+    Screen m_currentScreen{ Screen::MENU };
+
 };

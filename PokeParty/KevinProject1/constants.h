@@ -1,5 +1,8 @@
 #pragma once
 
+constexpr float SCREEN_WIDTH = 800.0f;
+constexpr float SCREEN_HEIGHT = 600.0f;
+
 constexpr float SHIP_SPEED = 200.0f;
 constexpr float SHIP_TURN_RATE = 180.0f;
 

@@ -5,13 +5,13 @@
 #include <algorithm>
 #include <cmath>
 
-// Helper: shortest distance from point p to segment [a,b]
 static float pointSegmentDistance(Vector2 p, Vector2 a, Vector2 b)
 {
     Vector2 ab = { b.x - a.x, b.y - a.y };
     Vector2 ap = { p.x - a.x, p.y - a.y };
     float abLenSq = ab.x * ab.x + ab.y * ab.y;
-    if (abLenSq < 1e-6f) {
+    if (abLenSq < 1e-6f) 
+    {
         float dx = p.x - a.x, dy = p.y - a.y;
         return sqrtf(dx * dx + dy * dy);
     }
@@ -33,10 +33,13 @@ Game::Game()
     m_players.push_back(Player("P4", Ship({ 700.0f, 300.0f }, 270.0f, KEY_KP_8, YELLOW), KEY_KP_9));
 
     m_powerupSpawnTimer = getRandomSpawnDelay();
+
+    HideCursor();
 }
 
-void Game::run() {
-    InitWindow(800, 600, "PokeParty");
+void Game::run() 
+{
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PokeParty");
     SetTargetFPS(60);
 
     insertEndCircular(m_powerupHead, m_powerupTail, Powerup({0,0}, PowerupType::LASER));
@@ -45,7 +48,8 @@ void Game::run() {
     m_currentPowerup = m_powerupHead;
 
 
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose()) 
+    {
         float deltaTime = GetFrameTime();
         update(deltaTime);
 
@@ -58,8 +62,53 @@ void Game::run() {
     CloseWindow();
 }
 
-void Game::update(float t_deltaTime) {
-    for (Player& player : m_players) {
+
+void Game::update(float t_deltaTime)
+{
+    switch (m_currentScreen)
+    {
+    case Screen::MENU:
+    {
+        updateMenu(t_deltaTime);
+    } break;
+    case Screen::LEVEL_SELECT:
+    {
+        updateLevelSelect(t_deltaTime);
+    } break;
+    case Screen::GAME:
+    {
+        updateGame(t_deltaTime);
+    } break;
+    
+    default: break;
+    }
+}
+
+void Game::draw()
+{
+    switch (m_currentScreen)
+    {
+    case Screen::MENU:
+    {
+        drawMenu();
+
+    } break;
+    case Screen::LEVEL_SELECT:
+    {
+        drawLevelSelect();
+    } break;
+    case Screen::GAME:
+    {
+        drawGame();
+    } break;
+    default: break;
+    }
+}
+
+void Game::updateGame(float t_deltaTime) 
+{
+    for (Player& player : m_players) 
+    {
         player.update(t_deltaTime);
     }
 
@@ -77,12 +126,38 @@ void Game::update(float t_deltaTime) {
     cleanupBullets();
     cleanupLasers();
 
-    if (checkRoundEnd()) {
+    if (checkRoundEnd()) 
+    {
         endRound();
     }
 }
 
-void Game::draw()
+void Game::updateMenu(float t_deltaTime)
+{
+    // TODO: Update LOGO screen variables here!
+
+    framesCounter++;    // Count frames
+
+    // Wait for 2 seconds (120 frames) before jumping to TITLE screen
+    if (framesCounter > 240)
+    {
+        m_currentScreen = Screen::LEVEL_SELECT;
+    }
+}
+
+void Game::updateLevelSelect(float t_deltaTime)
+{
+    // TODO: Update TITLE screen variables here!
+
+        // Press enter to change to GAMEPLAY screen
+    if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP))
+    {
+        m_currentScreen = Screen::GAME;
+    }
+}
+
+
+void Game::drawGame()
 {
     for (Powerup& p : m_powerups) p.draw();
 
@@ -90,7 +165,8 @@ void Game::draw()
 
     for (Bullet& bullet : m_bullets) bullet.draw();
 
-    for (const Laser& laser : m_lasers) {
+    for (const Laser& laser : m_lasers) 
+    {
         int idx = laser.getOwnerIndex();
         if (idx < 0 || idx >= (int)m_players.size()) continue;
         if (!m_players[idx].isAlive()) continue;
@@ -107,6 +183,31 @@ void Game::draw()
     }
 }
 
+
+void Game::drawMenu()
+{
+    // TODO: Draw LOGO screen here!
+    DrawText("LOGO SCREEN", 20, 20, 40, LIGHTGRAY);
+    DrawText("WAIT for 2 SECONDS...", 290, 220, 20, GRAY);
+}
+
+void Game::drawLevelSelect()
+{
+    // TODO: Draw TITLE screen here!
+    DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, GREEN);
+    DrawText("TITLE SCREEN", 20, 20, 40, DARKGREEN);
+    DrawText("PRESS ENTER or TAP to JUMP to GAMEPLAY SCREEN", 120, 220, 20, DARKGREEN);
+
+}
+
+
+
+
+//-----------------------------------------//
+
+//-----------------------------------------//
+
+
 void Game::handleFiring()
 {
     for (int i = 0; i < (int)m_players.size(); i++)
@@ -114,11 +215,13 @@ void Game::handleFiring()
         if (!m_players[i].isAlive()) continue;
         if (!IsKeyPressed(m_players[i].getFireKey())) continue;
 
-        if (m_players[i].getWeapon() == WeaponType::LASER) {
+        if (m_players[i].getWeapon() == WeaponType::LASER) 
+        {
             m_lasers.push_back(Laser(i, LASER_DURATION));
             m_players[i].setWeapon(WeaponType::NORMAL);
         }
-        else {
+        else 
+        {
             m_bullets.push_back(m_players[i].fire(i));
         }
     }
@@ -135,7 +238,8 @@ void Game::handleBulletCollisions()
             if (!m_players[j].isAlive()) continue;
             if (m_bullets[i].getOwnerIndex() == j) continue;
 
-            if (m_bullets[i].getCollider().overlaps(m_players[j].getCollider())) {
+            if (m_bullets[i].getCollider().overlaps(m_players[j].getCollider())) 
+            {
                 m_players[m_bullets[i].getOwnerIndex()].addKill();
                 m_players[j].kill();
                 m_leaderboard.addPlayer(m_players[j].getName(), m_players[j].getKills());
@@ -169,7 +273,8 @@ void Game::handleLaserCollisions()
             Vector2 center = m_players[j].getShip().getPosition();
             float   radius = m_players[j].getCollider().getRadius();
 
-            if (pointSegmentDistance(center, origin, end) <= radius + LASER_WIDTH * 0.5f) {
+            if (pointSegmentDistance(center, origin, end) <= radius + LASER_WIDTH * 0.5f)
+            {
                 m_players[ownerIdx].addKill();
                 m_players[j].kill();
                 m_leaderboard.addPlayer(m_players[j].getName(), m_players[j].getKills());
