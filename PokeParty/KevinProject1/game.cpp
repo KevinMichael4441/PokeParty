@@ -44,6 +44,7 @@ void Game::run()
     SetTargetFPS(60);
 
     m_splashTexture = LoadTexture("assets/splash.png");
+    m_bgTexture = LoadTexture("assets/bg.png");
 
     m_playerTextures[0] = LoadTexture("assets/brawt.png");
     m_playerTextures[1] = LoadTexture("assets/jeremy.png");
@@ -66,7 +67,6 @@ void Game::run()
         update(deltaTime);
 
         BeginDrawing();
-        ClearBackground(BLUE);
         draw();
         EndDrawing();
     }
@@ -78,6 +78,7 @@ void Game::run()
     }
 
     UnloadTexture(m_splashTexture);
+    UnloadTexture(m_bgTexture);
 
     CloseWindow();
 }
@@ -215,75 +216,60 @@ void Game::drawMenu()
 
 void Game::updateLevelSelect(float t_deltaTime)
 {
-    const float boxSize = 220.0f;
-    const float boxSpacing = 40.0f;
-    const float totalW = 3.0f * boxSize + 2.0f * boxSpacing;
-    const float startX = (SCREEN_WIDTH - totalW) * 0.5f;
-    const float boxY = (SCREEN_HEIGHT - boxSize) * 0.5f;
+    if (!IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        return;
+    }
 
     Vector2 mouse = GetMousePosition();
-    bool clicked = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 
-    for (int i = 0; i < 3; i++)
+    if (CheckCollisionPointRec(mouse, Rectangle{ 30.0f, 190.0f, 220.0f, 220.0f }))
     {
-        float x = startX + i * (boxSize + boxSpacing);
-        Rectangle box = { x, boxY, boxSize, boxSize };
-
-        if (CheckCollisionPointRec(mouse, box) && clicked)
-        {
-            createPlayers(i + 2);
-            m_currentScreen = Screen::GAME;
-            return;
-        }
+        createPlayers(2);
+        m_currentScreen = Screen::GAME;
+    }
+    else if (CheckCollisionPointRec(mouse, Rectangle{ 290.0f, 190.0f, 220.0f, 220.0f }))
+    {
+        createPlayers(3);
+        m_currentScreen = Screen::GAME;
+    }
+    else if (CheckCollisionPointRec(mouse, Rectangle{ 550.0f, 190.0f, 220.0f, 220.0f }))
+    {
+        createPlayers(4);
+        m_currentScreen = Screen::GAME;
     }
 }
 
 void Game::drawLevelSelect()
 {
     ClearBackground(DARKGREEN);
-
-    const int counts[3] = { 2, 3, 4 };
-    const float boxSize = 220.0f;
-    const float boxSpacing = 40.0f;
-    const float totalW = 3.0f * boxSize + 2.0f * boxSpacing;
-    const float startX = (SCREEN_WIDTH - totalW) * 0.5f;
-    const float boxY = (SCREEN_HEIGHT - boxSize) * 0.5f;
-
-    const float imageSize = 45.0f;
-    const float imageSpacing = 8.0f;
-
     Vector2 mouse = GetMousePosition();
 
-    for (int i = 0; i < 3; i++)
-    {
-        float x = startX + i * (boxSize + boxSpacing);
-        Rectangle box = { x, boxY, boxSize, boxSize };
+    Rectangle src0 = { 0.0f, 0.0f, (float)m_playerFrontTextures[0].width, (float)m_playerFrontTextures[0].height };
+    Rectangle src1 = { 0.0f, 0.0f, (float)m_playerFrontTextures[1].width, (float)m_playerFrontTextures[1].height };
+    Rectangle src2 = { 0.0f, 0.0f, (float)m_playerFrontTextures[2].width, (float)m_playerFrontTextures[2].height };
+    Rectangle src3 = { 0.0f, 0.0f, (float)m_playerFrontTextures[3].width, (float)m_playerFrontTextures[3].height };
 
-        bool hovered = CheckCollisionPointRec(mouse, box);
+    Rectangle box1 = { 30.0f, 190.0f, 220.0f, 220.0f };
+    DrawRectangleRec(box1, CheckCollisionPointRec(mouse, box1) ? RAYWHITE : Color{ 0, 80, 0, 255 });
+    DrawRectangleLinesEx(box1, 4.0f, RAYWHITE);
+    DrawTexturePro(m_playerFrontTextures[0], src0, Rectangle{ 91.0f, 277.0f, 45.0f, 45.0f }, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
+    DrawTexturePro(m_playerFrontTextures[1], src1, Rectangle{ 144.0f, 277.0f, 45.0f, 45.0f }, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
 
-        Color boxFill = hovered ? RAYWHITE : Color{ 0, 80, 0, 255 };
+    Rectangle box2 = { 290.0f, 190.0f, 220.0f, 220.0f };
+    DrawRectangleRec(box2, CheckCollisionPointRec(mouse, box2) ? RAYWHITE : Color{ 0, 80, 0, 255 });
+    DrawRectangleLinesEx(box2, 4.0f, RAYWHITE);
+    DrawTexturePro(m_playerFrontTextures[0], src0, Rectangle{ 324.0f, 277.0f, 45.0f, 45.0f }, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
+    DrawTexturePro(m_playerFrontTextures[1], src1, Rectangle{ 377.0f, 277.0f, 45.0f, 45.0f }, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
+    DrawTexturePro(m_playerFrontTextures[2], src2, Rectangle{ 430.0f, 277.0f, 45.0f, 45.0f }, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
 
-        DrawRectangleRec(box, boxFill);
-        DrawRectangleLinesEx(box, 4.0f, RAYWHITE);
-
-        int count = counts[i];
-        float rowW = count * imageSize + (count - 1) * imageSpacing;
-        float rowStartX = x + (boxSize - rowW) * 0.5f;
-        float rowCenterY = boxY + boxSize * 0.5f;
-
-        for (int c = 0; c < count; c++)
-        {
-            Rectangle dest = {
-                rowStartX + c * (imageSize + imageSpacing),
-                rowCenterY - imageSize * 0.5f,
-                imageSize,
-                imageSize
-            };
-
-            Rectangle src = { 0.0f, 0.0f, (float)m_playerFrontTextures[c].width, (float)m_playerFrontTextures[c].height };
-            DrawTexturePro(m_playerFrontTextures[c], src, dest, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
-        }
-    }
+    Rectangle box3 = { 550.0f, 190.0f, 220.0f, 220.0f };
+    DrawRectangleRec(box3, CheckCollisionPointRec(mouse, box3) ? RAYWHITE : Color{ 0, 80, 0, 255 });
+    DrawRectangleLinesEx(box3, 4.0f, RAYWHITE);
+    DrawTexturePro(m_playerFrontTextures[0], src0, Rectangle{ 558.0f, 277.0f, 45.0f, 45.0f }, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
+    DrawTexturePro(m_playerFrontTextures[1], src1, Rectangle{ 611.0f, 277.0f, 45.0f, 45.0f }, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
+    DrawTexturePro(m_playerFrontTextures[2], src2, Rectangle{ 664.0f, 277.0f, 45.0f, 45.0f }, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
+    DrawTexturePro(m_playerFrontTextures[3], src3, Rectangle{ 717.0f, 277.0f, 45.0f, 45.0f }, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
 }
 
 void Game::updateLeaderboard(float t_deltaTime)
@@ -402,6 +388,10 @@ void Game::createPlayers(int t_count)
 
 void Game::drawGame()
 {
+    Rectangle bgSrc = { 0.0f, 0.0f, (float)m_bgTexture.width, (float)m_bgTexture.height };
+    Rectangle bgDst = { 0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT };
+    DrawTexturePro(m_bgTexture, bgSrc, bgDst, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
+
     for (Powerup& p : m_powerups)
     {
         p.draw();

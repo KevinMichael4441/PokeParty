@@ -68,6 +68,7 @@ private:
     Screen m_currentScreen{ Screen::MENU };
 
     Texture2D m_splashTexture{};
+    Texture2D m_bgTexture{};
     Texture2D m_playerTextures[4]{};
     Texture2D m_playerFrontTextures[4]{};
 
