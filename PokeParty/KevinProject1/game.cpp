@@ -101,6 +101,11 @@ void Game::update(float t_deltaTime)
         updateGame(t_deltaTime);
     } break;
 
+    case Screen::LEADERBOARD:
+    {
+        updateLeaderboard(t_deltaTime);
+    } break;
+
     default:
     {
     } break;
@@ -124,6 +129,11 @@ void Game::draw()
     case Screen::GAME:
     {
         drawGame();
+    } break;
+
+    case Screen::LEADERBOARD:
+    {
+        drawLeaderboard();
     } break;
 
     default:
@@ -160,7 +170,16 @@ void Game::updateGame(float t_deltaTime)
     cleanupBullets();
     cleanupLasers();
 
-    if (checkRoundEnd())
+    bool matchOver = false;
+    for (Player& player : m_players)
+    {
+        if (player.getKills() >= KILLS_FOR_RESET)
+        {
+            matchOver = true;
+        }
+    }
+
+    if (matchOver || checkRoundEnd())
     {
         endRound();
     }
@@ -168,11 +187,11 @@ void Game::updateGame(float t_deltaTime)
 
 void Game::updateMenu(float t_deltaTime)
 {
-    framesCounter++;
+    m_splashTimer += t_deltaTime;
 
-    if (framesCounter > 120)
+    if (m_splashTimer > SPLASH_SCREEN_DURATION)
     {
-        framesCounter = 0;
+        m_splashTimer = 0.0f;
         m_currentScreen = Screen::LEVEL_SELECT;
     }
 }
@@ -263,6 +282,92 @@ void Game::drawLevelSelect()
 
             Rectangle src = { 0.0f, 0.0f, (float)m_playerFrontTextures[c].width, (float)m_playerFrontTextures[c].height };
             DrawTexturePro(m_playerFrontTextures[c], src, dest, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
+        }
+    }
+}
+
+void Game::updateLeaderboard(float t_deltaTime)
+{
+    m_leaderboardTimer -= t_deltaTime;
+    if (m_leaderboardTimer <= 0.0f)
+    {
+        if (m_matchOver)
+        {
+            for (Player& player : m_players)
+            {
+                player.resetKills();
+            }
+            m_currentScreen = Screen::LEVEL_SELECT;
+        }
+        else
+        {
+            for (Player& player : m_players)
+            {
+                player.respawn();
+            }
+            m_bullets.clear();
+            m_lasers.clear();
+            m_powerups.clear();
+            m_powerupSpawnTimer = getRandomSpawnDelay();
+            m_currentScreen = Screen::GAME;
+        }
+    }
+}
+
+void Game::drawLeaderboard()
+{
+    ClearBackground(BLACK);
+
+    DrawRectangle(40, 40, SCREEN_WIDTH - 80, SCREEN_HEIGHT - 80, BLUE);
+    DrawRectangle(45, 45, SCREEN_WIDTH - 90, SCREEN_HEIGHT - 90, PURPLE);
+
+    float trackStartX = 150.0f;
+    float trackEndX = 650.0f;
+    float trackWidth = trackEndX - trackStartX;
+
+    for (int i = 0; i < (int)m_players.size(); i++)
+    {
+        float startY = 100.0f + i * 100.0f;
+        int kills = m_players[i].getKills();
+
+        Rectangle iconDest = { 70.0f, startY, 50.0f, 50.0f };
+        Rectangle src = { 0.0f, 0.0f, (float)m_playerFrontTextures[i].width, (float)m_playerFrontTextures[i].height };
+        DrawTexturePro(m_playerFrontTextures[i], src, iconDest, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
+
+        DrawRectangle((int)trackStartX, (int)startY + 23, (int)trackWidth, 4, GRAY);
+
+        float progress = (float)kills / (float)KILLS_FOR_RESET;
+        if (progress > 1.0f)
+        {
+            progress = 1.0f;
+        }
+        float markerX = trackStartX + progress * trackWidth;
+
+        Rectangle markerDest = { markerX - 15.0f, startY + 10.0f, 30.0f, 30.0f };
+        DrawTexturePro(m_playerFrontTextures[i], src, markerDest, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
+
+        if (kills >= KILLS_FOR_RESET)
+        {
+            float cx = markerX;
+            float cy = startY + 5.0f;
+
+            DrawRectangle((int)cx - 15, (int)cy - 5, 30, 10, GOLD);
+            DrawTriangle(Vector2{ cx - 15, cy - 5 }, Vector2{ cx - 15, cy - 15 }, Vector2{ cx - 5, cy - 5 }, GOLD);
+            DrawTriangle(Vector2{ cx - 5, cy - 5 }, Vector2{ cx, cy - 20 }, Vector2{ cx + 5, cy - 5 }, GOLD);
+            DrawTriangle(Vector2{ cx + 5, cy - 5 }, Vector2{ cx + 15, cy - 15 }, Vector2{ cx + 15, cy - 5 }, GOLD);
+        }
+    }
+
+    float flagTopY = 80.0f;
+    float flagBottomY = 520.0f;
+    int rows = (int)((flagBottomY - flagTopY) / 15.0f);
+
+    for (int r = 0; r < rows; r++)
+    {
+        for (int c = 0; c < 4; c++)
+        {
+            Color col = ((r + c) % 2 == 0) ? WHITE : BLACK;
+            DrawRectangle((int)trackEndX + c * 15, (int)flagTopY + r * 15, 15, 15, col);
         }
     }
 }
@@ -607,42 +712,25 @@ void Game::endRound()
 {
     for (Player& player : m_players)
     {
-        if (player.isAlive())
-        {
-            m_leaderboard.addPlayer(player.getName(), player.getKills());
-        }
+        m_leaderboard.addPlayer(player.getName(), player.getKills());
     }
 
     std::cout << "=== Round Results ===\n";
     m_leaderboard.displayLeaderboard();
     std::cout << "=====================\n";
 
-    bool fullReset = false;
+    bool matchOver = false;
     for (Player& player : m_players)
     {
         if (player.getKills() >= KILLS_FOR_RESET)
         {
-            fullReset = true;
+            matchOver = true;
         }
     }
 
-    if (fullReset)
-    {
-        for (Player& player : m_players)
-        {
-            player.resetKills();
-        }
-    }
-
-    for (Player& player : m_players)
-    {
-        player.respawn();
-    }
-
-    m_bullets.clear();
-    m_lasers.clear();
-    m_powerups.clear();
-    m_powerupSpawnTimer = getRandomSpawnDelay();
+    m_matchOver = matchOver;
+    m_leaderboardTimer = LEADERBOARD_DURATION;
+    m_currentScreen = Screen::LEADERBOARD;
 }
 
 void Game::insertEndCircular(PowerupNode*& t_head, PowerupNode*& t_tail, Powerup t_powerup)

@@ -7,7 +7,7 @@
 #include "powerup.h"
 #include "leaderboard.h"
 
-enum class Screen { MENU, GAME, LEVEL_SELECT };
+enum class Screen { MENU, GAME, LEVEL_SELECT, LEADERBOARD };
 
 
 class Game {
@@ -27,6 +27,9 @@ private:
 
     void updateLevelSelect(float t_deltaTime);
     void drawLevelSelect();
+
+    void updateLeaderboard(float t_deltaTime);
+    void drawLeaderboard();
 
     void createPlayers(int t_count);
 
@@ -61,10 +64,13 @@ private:
 
     Leaderboard m_leaderboard;
 
-    int framesCounter = 0;
+    float m_splashTimer = 0.0f;
     Screen m_currentScreen{ Screen::MENU };
 
     Texture2D m_splashTexture{};
     Texture2D m_playerTextures[4]{};
     Texture2D m_playerFrontTextures[4]{};
+
+    float m_leaderboardTimer = 0.0f;
+    bool m_matchOver = false;
 };

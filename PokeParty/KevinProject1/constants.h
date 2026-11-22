@@ -27,3 +27,6 @@ constexpr float LASER_WIDTH = 3.0f;
 constexpr float LASER_MAX_LENGTH = 2000.0f;
 
 constexpr int KILLS_FOR_RESET = 10;
+
+constexpr float SPLASH_SCREEN_DURATION = 2.0f;
+constexpr float LEADERBOARD_DURATION = 10.0f;
