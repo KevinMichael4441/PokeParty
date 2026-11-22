@@ -21,10 +21,17 @@ void Ship::update(float t_deltaTime)
 {
     bool turnRightHeld = IsKeyDown(m_turnKey);
 
-    if (turnRightHeld) {
+    if (turnRightHeld)
+    {
         m_rotation += m_turnRate * m_rotationDirection * t_deltaTime;
-        if (m_rotation >= 360.0f) m_rotation -= 360.0f;
-        if (m_rotation < 0.0f)    m_rotation += 360.0f;
+        if (m_rotation >= 360.0f)
+        {
+            m_rotation -= 360.0f;
+        }
+        if (m_rotation < 0.0f)
+        {
+            m_rotation += 360.0f;
+        }
     }
 
     m_position.x += cosf(m_rotation * DEG2RAD) * m_speed * t_deltaTime;
@@ -33,19 +40,40 @@ void Ship::update(float t_deltaTime)
     float halfW = SHIP_WIDTH * 0.5f;
     float halfH = SHIP_HEIGHT * 0.5f;
 
-    if (m_position.x < halfW) m_position.x = halfW;
-    if (m_position.x > GetScreenWidth() - halfW) m_position.x = GetScreenWidth() - halfW;
-    if (m_position.y < halfH) m_position.y = halfH;
-    if (m_position.y > GetScreenHeight() - halfH) m_position.y = GetScreenHeight() - halfH;
+    if (m_position.x < halfW)
+    {
+        m_position.x = halfW;
+    }
+    if (m_position.x > GetScreenWidth() - halfW)
+    {
+        m_position.x = GetScreenWidth() - halfW;
+    }
+    if (m_position.y < halfH)
+    {
+        m_position.y = halfH;
+    }
+    if (m_position.y > GetScreenHeight() - halfH)
+    {
+        m_position.y = GetScreenHeight() - halfH;
+    }
 
     m_collider.setPosition(m_position);
 }
 
 void Ship::draw()
 {
-    Rectangle body = { m_position.x, m_position.y, SHIP_WIDTH, SHIP_HEIGHT };
-    Vector2 origin = { SHIP_WIDTH * 0.5f, SHIP_HEIGHT * 0.5f };
-    DrawRectanglePro(body, origin, m_rotation, m_color);
+    Rectangle src = { 0.0f, 0.0f, (float)m_texture.width, (float)m_texture.height };
+
+    Rectangle dst = {
+        m_position.x,
+        m_position.y,
+        SHIP_DISPLAY_SIZE,
+        SHIP_DISPLAY_SIZE
+    };
+
+    Vector2 origin = { SHIP_DISPLAY_SIZE * 0.5f, SHIP_DISPLAY_SIZE * 0.5f };
+
+    DrawTexturePro(m_texture, src, dst, origin, m_rotation, WHITE);
 }
 
 void Ship::reset()
@@ -60,9 +88,25 @@ void Ship::reverseRotation()
     m_rotationDirection = -m_rotationDirection;
 }
 
-Vector2 Ship::getPosition() const { return m_position; }
-float   Ship::getRotation() const { return m_rotation; }
-Color   Ship::getColor()    const { return m_color; }
+void Ship::setTexture(Texture2D t_texture)
+{
+    m_texture = t_texture;
+}
+
+Vector2 Ship::getPosition() const
+{
+    return m_position;
+}
+
+float Ship::getRotation() const
+{
+    return m_rotation;
+}
+
+Color Ship::getColor() const
+{
+    return m_color;
+}
 
 Rectangle Ship::getBody()
 {
@@ -74,7 +118,7 @@ Rectangle Ship::getBody()
     };
 }
 
-Collider& Ship::getCollider() 
-{ 
-    return m_collider; 
+Collider& Ship::getCollider()
+{
+    return m_collider;
 }

@@ -16,7 +16,10 @@ Player::Player(std::string t_name, Ship t_ship, KeyboardKey t_fireKey)
 
 void Player::update(float t_deltaTime)
 {
-    if (m_alive) m_ship.update(t_deltaTime);
+    if (m_alive)
+    {
+        m_ship.update(t_deltaTime);
+    }
 }
 
 void Player::draw()
@@ -26,7 +29,7 @@ void Player::draw()
         return;
     }
 
-    if (m_hasMelee) 
+    if (m_hasMelee)
     {
         Vector2 center = getMeleeCenter();
         DrawCircleV(center, MELEE_RADIUS, Color{ 255, 161, 0, 127 });
@@ -65,44 +68,44 @@ Bullet Player::fire(int t_ownerIndex)
     return Bullet(bulletPos, rot, t_ownerIndex, m_ship.getColor());
 }
 
-std::string Player::getName() 
-{ 
-    return m_name; 
+std::string Player::getName()
+{
+    return m_name;
 }
 
-int Player::getKills() 
-{ 
-    return m_kills; 
+int Player::getKills()
+{
+    return m_kills;
 }
 
-void Player::addKill() 
-{ 
-    m_kills++; 
+void Player::addKill()
+{
+    m_kills++;
 }
 
-void Player::resetKills() 
-{ 
-    m_kills = 0; 
+void Player::resetKills()
+{
+    m_kills = 0;
 }
 
-bool Player::isAlive() 
-{ 
-    return m_alive; 
+bool Player::isAlive()
+{
+    return m_alive;
 }
 
-KeyboardKey Player::getFireKey() 
-{ 
-    return m_fireKey; 
+KeyboardKey Player::getFireKey()
+{
+    return m_fireKey;
 }
 
-Ship& Player::getShip() 
-{ 
-    return m_ship; 
+Ship& Player::getShip()
+{
+    return m_ship;
 }
 
-Collider& Player::getCollider() 
-{ 
-    return m_ship.getCollider(); 
+Collider& Player::getCollider()
+{
+    return m_ship.getCollider();
 }
 
 void Player::giveMelee()
@@ -117,20 +120,15 @@ bool Player::hasMelee() const
 
 Vector2 Player::getMeleeCenter() const
 {
-    Vector2 pos = m_ship.getPosition();
-    float rot = m_ship.getRotation();
-    return {
-        pos.x - cosf(rot * DEG2RAD),
-        pos.y - sinf(rot * DEG2RAD)
-    };
+    return m_ship.getPosition();
 }
 
-WeaponType Player::getWeapon() const 
-{ 
-    return m_weapon; 
+WeaponType Player::getWeapon() const
+{
+    return m_weapon;
 }
 
-void Player::setWeapon(WeaponType t_weapon) 
-{ 
-    m_weapon = t_weapon; 
+void Player::setWeapon(WeaponType t_weapon)
+{
+    m_weapon = t_weapon;
 }

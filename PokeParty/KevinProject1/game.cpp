@@ -16,8 +16,14 @@ static float pointSegmentDistance(Vector2 p, Vector2 a, Vector2 b)
         return sqrtf(dx * dx + dy * dy);
     }
     float t = (ap.x * ab.x + ap.y * ab.y) / abLenSq;
-    if (t < 0.0f) t = 0.0f;
-    if (t > 1.0f) t = 1.0f;
+    if (t < 0.0f)
+    {
+        t = 0.0f;
+    }
+    if (t > 1.0f)
+    {
+        t = 1.0f;
+    }
     float cx = a.x + ab.x * t;
     float cy = a.y + ab.y * t;
     float dx = p.x - cx;
@@ -38,7 +44,16 @@ void Game::run()
     SetTargetFPS(60);
 
     m_splashTexture = LoadTexture("assets/splash.png");
-    m_splashLoaded = (m_splashTexture.id > 0);
+
+    m_playerTextures[0] = LoadTexture("assets/brawt.png");
+    m_playerTextures[1] = LoadTexture("assets/jeremy.png");
+    m_playerTextures[2] = LoadTexture("assets/michael.png");
+    m_playerTextures[3] = LoadTexture("assets/smeagle.png");
+
+    m_playerFrontTextures[0] = LoadTexture("assets/brawtFront.png");
+    m_playerFrontTextures[1] = LoadTexture("assets/jeremyFront.png");
+    m_playerFrontTextures[2] = LoadTexture("assets/michaelFront.png");
+    m_playerFrontTextures[3] = LoadTexture("assets/smeagleFront.png");
 
     insertEndCircular(m_powerupHead, m_powerupTail, Powerup({ 0,0 }, PowerupType::LASER));
     insertEndCircular(m_powerupHead, m_powerupTail, Powerup({ 0,0 }, PowerupType::MELEE));
@@ -56,14 +71,16 @@ void Game::run()
         EndDrawing();
     }
 
-    if (m_splashLoaded)
+    for (int i = 0; i < 4; i++)
     {
-        UnloadTexture(m_splashTexture);
+        UnloadTexture(m_playerTextures[i]);
+        UnloadTexture(m_playerFrontTextures[i]);
     }
+
+    UnloadTexture(m_splashTexture);
 
     CloseWindow();
 }
-
 
 void Game::update(float t_deltaTime)
 {
@@ -164,26 +181,17 @@ void Game::drawMenu()
 {
     ClearBackground(BLACK);
 
-    if (m_splashLoaded)
-    {
-        float scaleX = SCREEN_WIDTH / (float)m_splashTexture.width;
-        float scaleY = SCREEN_HEIGHT / (float)m_splashTexture.height;
-        float scale = fminf(scaleX, scaleY);
+    float scaleX = SCREEN_WIDTH / (float)m_splashTexture.width;
+    float scaleY = SCREEN_HEIGHT / (float)m_splashTexture.height;
+    float scale = fminf(scaleX, scaleY);
 
-        float w = m_splashTexture.width * scale;
-        float h = m_splashTexture.height * scale;
+    float w = m_splashTexture.width * scale;
+    float h = m_splashTexture.height * scale;
 
-        Rectangle src = { 0.0f, 0.0f, (float)m_splashTexture.width, (float)m_splashTexture.height };
-        Rectangle dst = { (SCREEN_WIDTH - w) * 0.5f, (SCREEN_HEIGHT - h) * 0.5f, w, h };
+    Rectangle src = { 0.0f, 0.0f, (float)m_splashTexture.width, (float)m_splashTexture.height };
+    Rectangle dst = { (SCREEN_WIDTH - w) * 0.5f, (SCREEN_HEIGHT - h) * 0.5f, w, h };
 
-        DrawTexturePro(m_splashTexture, src, dst, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
-    }
-    else
-    {
-        DrawText("SPLASH", 20, 20, 40, LIGHTGRAY);
-    }
-
-    DrawText("Loading...", 20, (int)SCREEN_HEIGHT - 40, 20, LIGHTGRAY);
+    DrawTexturePro(m_splashTexture, src, dst, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
 }
 
 void Game::updateLevelSelect(float t_deltaTime)
@@ -222,8 +230,8 @@ void Game::drawLevelSelect()
     const float startX = (SCREEN_WIDTH - totalW) * 0.5f;
     const float boxY = (SCREEN_HEIGHT - boxSize) * 0.5f;
 
-    const float circleRadius = 17.0f;
-    const float circleSpacing = 8.0f;
+    const float imageSize = 45.0f;
+    const float imageSpacing = 8.0f;
 
     Vector2 mouse = GetMousePosition();
 
@@ -235,20 +243,26 @@ void Game::drawLevelSelect()
         bool hovered = CheckCollisionPointRec(mouse, box);
 
         Color boxFill = hovered ? RAYWHITE : Color{ 0, 80, 0, 255 };
-        Color circleColor = hovered ? DARKGREEN : RAYWHITE;
 
         DrawRectangleRec(box, boxFill);
         DrawRectangleLinesEx(box, 4.0f, RAYWHITE);
 
         int count = counts[i];
-        float rowW = count * circleRadius * 2.0f + (count - 1) * circleSpacing;
+        float rowW = count * imageSize + (count - 1) * imageSpacing;
         float rowStartX = x + (boxSize - rowW) * 0.5f;
         float rowCenterY = boxY + boxSize * 0.5f;
 
         for (int c = 0; c < count; c++)
         {
-            float cx = rowStartX + circleRadius + c * (circleRadius * 2.0f + circleSpacing);
-            DrawCircleV(Vector2{ cx, rowCenterY }, circleRadius, circleColor);
+            Rectangle dest = {
+                rowStartX + c * (imageSize + imageSpacing),
+                rowCenterY - imageSize * 0.5f,
+                imageSize,
+                imageSize
+            };
+
+            Rectangle src = { 0.0f, 0.0f, (float)m_playerFrontTextures[c].width, (float)m_playerFrontTextures[c].height };
+            DrawTexturePro(m_playerFrontTextures[c], src, dest, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
         }
     }
 }
@@ -258,16 +272,21 @@ void Game::createPlayers(int t_count)
     m_players.clear();
 
     m_players.push_back(Player("P1", Ship({ 100.0f, 300.0f }, 0.0f, KEY_Q, WHITE), KEY_W));
+    m_players.back().getShip().setTexture(m_playerTextures[0]);
+
     m_players.push_back(Player("P2", Ship({ 300.0f, 150.0f }, 90.0f, KEY_N, RED), KEY_M));
+    m_players.back().getShip().setTexture(m_playerTextures[1]);
 
     if (t_count >= 3)
     {
         m_players.push_back(Player("P3", Ship({ 500.0f, 450.0f }, 180.0f, KEY_LEFT, GREEN), KEY_RIGHT));
+        m_players.back().getShip().setTexture(m_playerTextures[2]);
     }
 
     if (t_count >= 4)
     {
         m_players.push_back(Player("P4", Ship({ 700.0f, 300.0f }, 270.0f, KEY_KP_8, YELLOW), KEY_KP_9));
+        m_players.back().getShip().setTexture(m_playerTextures[3]);
     }
 
     m_bullets.clear();

@@ -16,6 +16,8 @@ public:
 
     void reverseRotation();
 
+    void setTexture(Texture2D t_texture);
+
     Vector2 getPosition() const;
     float   getRotation() const;
     Color   getColor()    const;
@@ -34,6 +36,8 @@ private:
     float m_turnRate;
     KeyboardKey m_turnKey;
     Color m_color;
+
+    Texture2D m_texture{};
 
     Collider m_collider;
 };
