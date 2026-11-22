@@ -16,6 +16,7 @@ public:
     void run();
 
 private:
+    void init();
     void update(float t_deltaTime);
     void draw();
 
@@ -71,6 +72,7 @@ private:
     Texture2D m_bgTexture{};
     Texture2D m_playerTextures[4]{};
     Texture2D m_playerFrontTextures[4]{};
+    Texture2D m_powerupTextures[3]{};
 
     float m_leaderboardTimer = 0.0f;
     bool m_matchOver = false;

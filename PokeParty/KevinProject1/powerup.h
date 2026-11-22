@@ -7,7 +7,7 @@ enum class PowerupType { MELEE, REVERSE, LASER };
 
 class Powerup {
 public:
-    Powerup(Vector2 t_position, PowerupType t_type);
+    Powerup(Vector2 t_position, PowerupType t_type, Texture2D t_texture);
 
     void update(float t_deltaTime);
     void draw();
@@ -23,11 +23,8 @@ private:
     PowerupType m_type;
     float m_lifeRemaining;
     Collider m_collider;
-
-    Color getTypeColor() const;
-    const char* getTypeLabel() const;
+    Texture2D m_texture;
 };
-
 
 class PowerupNode
 {

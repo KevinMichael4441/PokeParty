@@ -3,13 +3,12 @@
 
 #include <cmath>
 
-Bullet::Bullet(Vector2 t_position, float t_direction, int t_ownerIndex, Color t_color)
+Bullet::Bullet(Vector2 t_position, float t_direction, int t_ownerIndex)
     : m_position(t_position),
     m_direction(t_direction),
     m_speed(BULLET_SPEED),
     m_ownerIndex(t_ownerIndex),
     m_destroyed(false),
-    m_color(t_color),
     m_collider(t_position, BULLET_RADIUS)
 {
 }
@@ -24,7 +23,7 @@ void Bullet::update(float t_deltaTime)
 void Bullet::draw()
 {
     DrawCircleV(m_position, BULLET_RADIUS + 4, GREEN);
-    DrawCircleV(m_position, BULLET_RADIUS, m_color);
+    DrawCircleV(m_position, BULLET_RADIUS, RED);
 }
 
 bool Bullet::isOutOfBounds()

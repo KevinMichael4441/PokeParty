@@ -5,7 +5,7 @@
 
 class Bullet {
 public:
-    Bullet(Vector2 t_position, float t_direction, int t_ownerIndex, Color t_color);
+    Bullet(Vector2 t_position, float t_direction, int t_ownerIndex);
 
     void update(float t_deltaTime);
     void draw();
@@ -23,7 +23,6 @@ private:
     float m_speed;
     int m_ownerIndex;
     bool m_destroyed;
-    Color m_color;
 
     Collider m_collider;
 };

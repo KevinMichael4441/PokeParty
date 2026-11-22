@@ -1,13 +1,12 @@
 #include "powerup.h"
 #include "constants.h"
 
-#include <cmath>
-
-Powerup::Powerup(Vector2 t_position, PowerupType t_type)
+Powerup::Powerup(Vector2 t_position, PowerupType t_type, Texture2D t_texture)
     : m_position(t_position),
     m_type(t_type),
     m_lifeRemaining(POWERUP_LIFETIME),
-    m_collider(t_position, POWERUP_RADIUS)
+    m_collider(t_position, POWERUP_RADIUS),
+    m_texture(t_texture)
 {
 }
 
@@ -18,9 +17,11 @@ void Powerup::update(float t_deltaTime)
 
 void Powerup::draw()
 {
-    DrawCircleV(m_position, POWERUP_RADIUS, getTypeColor());
+    Rectangle src = { 0.0f, 0.0f, (float)m_texture.width, (float)m_texture.height };
+    Rectangle dst = { m_position.x, m_position.y, POWERUP_DISPLAY_SIZE, POWERUP_DISPLAY_SIZE };
+    Vector2 origin = { POWERUP_DISPLAY_SIZE * 0.5f, POWERUP_DISPLAY_SIZE * 0.5f };
 
-    DrawCircleV(m_position, POWERUP_RADIUS, getTypeColor());
+    DrawTexturePro(m_texture, src, dst, origin, 0.0f, WHITE);
 }
 
 bool Powerup::isExpired() const
@@ -36,19 +37,6 @@ PowerupType Powerup::getType() const
 Collider& Powerup::getCollider()
 {
     return m_collider;
-}
-
-Color Powerup::getTypeColor() const
-{
-    switch (m_type) 
-    {
-        case PowerupType::MELEE:   
-            return ORANGE;
-        case PowerupType::REVERSE: 
-            return PURPLE;
-        case PowerupType::LASER:   
-            return RED;
-    }
 }
 
 void Powerup::setPosition(Vector2 t_position)

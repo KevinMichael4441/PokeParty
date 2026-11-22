@@ -33,13 +33,12 @@ static float pointSegmentDistance(Vector2 p, Vector2 a, Vector2 b)
 
 Game::Game()
 {
-    m_powerupSpawnTimer = getRandomSpawnDelay();
-
-    HideCursor();
 }
 
-void Game::run()
+void Game::init()
 {
+    HideCursor();
+
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PokeParty");
     SetTargetFPS(60);
 
@@ -56,10 +55,21 @@ void Game::run()
     m_playerFrontTextures[2] = LoadTexture("assets/michaelFront.png");
     m_playerFrontTextures[3] = LoadTexture("assets/smeagleFront.png");
 
-    insertEndCircular(m_powerupHead, m_powerupTail, Powerup({ 0,0 }, PowerupType::LASER));
-    insertEndCircular(m_powerupHead, m_powerupTail, Powerup({ 0,0 }, PowerupType::MELEE));
-    insertEndCircular(m_powerupHead, m_powerupTail, Powerup({ 0,0 }, PowerupType::REVERSE));
+    m_powerupTextures[0] = LoadTexture("assets/laser.png");
+    m_powerupTextures[1] = LoadTexture("assets/melee.png");
+    m_powerupTextures[2] = LoadTexture("assets/reverse.png");
+
+    m_powerupSpawnTimer = getRandomSpawnDelay();
+
+    insertEndCircular(m_powerupHead, m_powerupTail, Powerup({ 0,0 }, PowerupType::LASER, m_powerupTextures[0]));
+    insertEndCircular(m_powerupHead, m_powerupTail, Powerup({ 0,0 }, PowerupType::MELEE, m_powerupTextures[1]));
+    insertEndCircular(m_powerupHead, m_powerupTail, Powerup({ 0,0 }, PowerupType::REVERSE, m_powerupTextures[2]));
     m_currentPowerup = m_powerupHead;
+}
+
+void Game::run()
+{
+    init();
 
     while (!WindowShouldClose())
     {
@@ -77,6 +87,11 @@ void Game::run()
         UnloadTexture(m_playerFrontTextures[i]);
     }
 
+    for (int i = 0; i < 3; i++)
+    {
+        UnloadTexture(m_powerupTextures[i]);
+    }
+
     UnloadTexture(m_splashTexture);
     UnloadTexture(m_bgTexture);
 
@@ -87,29 +102,30 @@ void Game::update(float t_deltaTime)
 {
     switch (m_currentScreen)
     {
+
     case Screen::MENU:
     {
         updateMenu(t_deltaTime);
-    } break;
-
+        break;
+    }
     case Screen::LEVEL_SELECT:
     {
         updateLevelSelect(t_deltaTime);
-    } break;
-
+        break;
+    }
     case Screen::GAME:
     {
         updateGame(t_deltaTime);
-    } break;
-
+        break;
+    }
     case Screen::LEADERBOARD:
     {
         updateLeaderboard(t_deltaTime);
-    } break;
-
+        break;
+    }
     default:
-    {
-    } break;
+        break;
+
     }
 }
 
@@ -117,29 +133,30 @@ void Game::draw()
 {
     switch (m_currentScreen)
     {
+
     case Screen::MENU:
     {
         drawMenu();
-    } break;
-
+        break;
+    }
     case Screen::LEVEL_SELECT:
     {
         drawLevelSelect();
-    } break;
-
+        break;
+    }
     case Screen::GAME:
     {
         drawGame();
-    } break;
-
+        break;
+    }
     case Screen::LEADERBOARD:
     {
         drawLeaderboard();
-    } break;
-
+        break;
+    }
     default:
-    {
-    } break;
+        break;
+
     }
 }
 
@@ -311,6 +328,19 @@ void Game::drawLeaderboard()
     float trackEndX = 650.0f;
     float trackWidth = trackEndX - trackStartX;
 
+
+    float flagTopY = 80.0f;
+    float flagBottomY = 520.0f;
+    int rows = (int)((flagBottomY - flagTopY) / 15.0f);
+    for (int r = 0; r < rows; r++)
+    {
+        for (int c = 0; c < 4; c++)
+        {
+            Color col = ((r + c) % 2 == 0) ? WHITE : BLACK;
+            DrawRectangle((int)trackEndX + c * 15, (int)flagTopY + r * 15, 15, 15, col);
+        }
+    }
+
     for (int i = 0; i < (int)m_players.size(); i++)
     {
         float startY = 100.0f + i * 100.0f;
@@ -331,30 +361,6 @@ void Game::drawLeaderboard()
 
         Rectangle markerDest = { markerX - 15.0f, startY + 10.0f, 30.0f, 30.0f };
         DrawTexturePro(m_playerFrontTextures[i], src, markerDest, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
-
-        if (kills >= KILLS_FOR_RESET)
-        {
-            float cx = markerX;
-            float cy = startY + 5.0f;
-
-            DrawRectangle((int)cx - 15, (int)cy - 5, 30, 10, GOLD);
-            DrawTriangle(Vector2{ cx - 15, cy - 5 }, Vector2{ cx - 15, cy - 15 }, Vector2{ cx - 5, cy - 5 }, GOLD);
-            DrawTriangle(Vector2{ cx - 5, cy - 5 }, Vector2{ cx, cy - 20 }, Vector2{ cx + 5, cy - 5 }, GOLD);
-            DrawTriangle(Vector2{ cx + 5, cy - 5 }, Vector2{ cx + 15, cy - 15 }, Vector2{ cx + 15, cy - 5 }, GOLD);
-        }
-    }
-
-    float flagTopY = 80.0f;
-    float flagBottomY = 520.0f;
-    int rows = (int)((flagBottomY - flagTopY) / 15.0f);
-
-    for (int r = 0; r < rows; r++)
-    {
-        for (int c = 0; c < 4; c++)
-        {
-            Color col = ((r + c) % 2 == 0) ? WHITE : BLACK;
-            DrawRectangle((int)trackEndX + c * 15, (int)flagTopY + r * 15, 15, 15, col);
-        }
     }
 }
 
@@ -362,21 +368,21 @@ void Game::createPlayers(int t_count)
 {
     m_players.clear();
 
-    m_players.push_back(Player("P1", Ship({ 100.0f, 300.0f }, 0.0f, KEY_Q, WHITE), KEY_W));
+    m_players.push_back(Player("P1", Ship({ 100.0f, 100.0f }, 0.0f, KEY_Q, WHITE), KEY_W));
     m_players.back().getShip().setTexture(m_playerTextures[0]);
 
-    m_players.push_back(Player("P2", Ship({ 300.0f, 150.0f }, 90.0f, KEY_N, RED), KEY_M));
+    m_players.push_back(Player("P2", Ship({ 700.0f, 100.0f }, 90.0f, KEY_N, RED), KEY_M));
     m_players.back().getShip().setTexture(m_playerTextures[1]);
 
     if (t_count >= 3)
     {
-        m_players.push_back(Player("P3", Ship({ 500.0f, 450.0f }, 180.0f, KEY_LEFT, GREEN), KEY_RIGHT));
+        m_players.push_back(Player("P3", Ship({ 700.0f, 500.0f }, 180.0f, KEY_LEFT, GREEN), KEY_RIGHT));
         m_players.back().getShip().setTexture(m_playerTextures[2]);
     }
 
     if (t_count >= 4)
     {
-        m_players.push_back(Player("P4", Ship({ 700.0f, 300.0f }, 270.0f, KEY_KP_8, YELLOW), KEY_KP_9));
+        m_players.push_back(Player("P4", Ship({ 100.0f, 500.0f }, 270.0f, KEY_KP_8, YELLOW), KEY_KP_9));
         m_players.back().getShip().setTexture(m_playerTextures[3]);
     }
 
@@ -385,7 +391,6 @@ void Game::createPlayers(int t_count)
     m_powerups.clear();
     m_powerupSpawnTimer = getRandomSpawnDelay();
 }
-
 void Game::drawGame()
 {
     Rectangle bgSrc = { 0.0f, 0.0f, (float)m_bgTexture.width, (float)m_bgTexture.height };
@@ -631,23 +636,28 @@ void Game::applyPowerup(PowerupType t_type, int t_playerIndex)
 {
     switch (t_type)
     {
+
     case PowerupType::MELEE:
     {
         m_players[t_playerIndex].giveMelee();
-    } break;
-
+        break;
+    }
     case PowerupType::REVERSE:
     {
         for (Player& p : m_players)
         {
             p.getShip().reverseRotation();
         }
-    } break;
-
+        break;
+    }
     case PowerupType::LASER:
     {
         m_players[t_playerIndex].setWeapon(WeaponType::LASER);
-    } break;
+        break;
+    }
+    default:
+        break;
+
     }
 }
 
@@ -702,7 +712,10 @@ void Game::endRound()
 {
     for (Player& player : m_players)
     {
-        m_leaderboard.addPlayer(player.getName(), player.getKills());
+        if (player.isAlive())
+        {
+            m_leaderboard.addPlayer(player.getName(), player.getKills());
+        }
     }
 
     std::cout << "=== Round Results ===\n";

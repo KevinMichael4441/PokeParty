@@ -65,7 +65,7 @@ Bullet Player::fire(int t_ownerIndex)
         pos.y + sinf(rot * DEG2RAD) * spawnDist
     };
 
-    return Bullet(bulletPos, rot, t_ownerIndex, m_ship.getColor());
+    return Bullet(bulletPos, rot, t_ownerIndex);
 }
 
 std::string Player::getName()
