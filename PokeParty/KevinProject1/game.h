@@ -28,6 +28,8 @@ private:
     void updateLevelSelect(float t_deltaTime);
     void drawLevelSelect();
 
+    void createPlayers(int t_count);
+
     void handleFiring();
     void handleBulletCollisions();
     void handleLaserCollisions();
@@ -51,10 +53,9 @@ private:
     std::vector<Laser> m_lasers;
     std::vector<Powerup> m_powerups;
 
-
-    PowerupNode* m_currentPowerup;
-    PowerupNode* m_powerupHead;
-    PowerupNode* m_powerupTail;
+    PowerupNode* m_currentPowerup = nullptr;
+    PowerupNode* m_powerupHead = nullptr;
+    PowerupNode* m_powerupTail = nullptr;
 
     float m_powerupSpawnTimer = 0.0f;
 
@@ -63,4 +64,6 @@ private:
     int framesCounter = 0;
     Screen m_currentScreen{ Screen::MENU };
 
+    Texture2D m_splashTexture{};
+    bool      m_splashLoaded = false;
 };
